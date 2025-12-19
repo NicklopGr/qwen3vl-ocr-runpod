@@ -1,4 +1,4 @@
-# Qwen3-VL-4B RunPod Serverless Container
+# Qwen3-VL-8B RunPod Serverless Container
 # Uses vLLM for fast inference
 
 FROM runpod/pytorch:2.4.0-py3.11-cuda12.4.1-devel-ubuntu22.04
@@ -13,9 +13,9 @@ RUN pip install --no-cache-dir \
     pillow \
     qwen-vl-utils==0.0.14
 
-# Pre-download model during build (4B fits easily on most GPUs)
+# Pre-download model during build
 ENV HF_HOME=/root/.cache/huggingface
-RUN python -c "from huggingface_hub import snapshot_download; snapshot_download('Qwen/Qwen3-VL-4B-Instruct')"
+RUN python -c "from huggingface_hub import snapshot_download; snapshot_download('Qwen/Qwen3-VL-8B-Instruct')"
 
 # Copy handler
 COPY handler.py /app/handler.py

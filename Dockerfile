@@ -1,30 +1,21 @@
-# Qwen3-VL-8B RunPod Serverless Container
-# Uses vLLM for fast inference with vision-language model
+# Qwen3-VL-4B RunPod Serverless Container
+# Uses vLLM for fast inference
 
-FROM vllm/vllm-openai:v0.11.0
+FROM runpod/pytorch:2.4.0-py3.11-cuda12.4.1-devel-ubuntu22.04
 
 # Set working directory
 WORKDIR /app
 
-# Install additional dependencies for RunPod
+# Install vLLM and dependencies
 RUN pip install --no-cache-dir \
+    vllm>=0.6.0 \
     runpod \
     pillow \
     qwen-vl-utils==0.0.14
 
-# Pre-download the model during build (optional but recommended)
-# This reduces cold start time on RunPod
+# Pre-download model during build (4B fits easily on most GPUs)
 ENV HF_HOME=/root/.cache/huggingface
-ENV TRANSFORMERS_CACHE=/root/.cache/huggingface
-
-# Download model weights during build
-# Uncomment one of the following based on your GPU memory:
-
-# For RTX 4090 / A10 (24GB) - Use FP8 for lower VRAM
-# RUN python -c "from huggingface_hub import snapshot_download; snapshot_download('Qwen/Qwen3-VL-8B-Instruct-FP8')"
-
-# For A100 (40GB+) - Use full precision
-# RUN python -c "from huggingface_hub import snapshot_download; snapshot_download('Qwen/Qwen3-VL-8B-Instruct')"
+RUN python -c "from huggingface_hub import snapshot_download; snapshot_download('Qwen/Qwen3-VL-4B-Instruct')"
 
 # Copy handler
 COPY handler.py /app/handler.py
@@ -32,8 +23,6 @@ COPY handler.py /app/handler.py
 # RunPod configuration
 ENV RUNPOD_DEBUG_LEVEL=INFO
 ENV PYTHONUNBUFFERED=1
-
-# Increase timeout for model loading
 ENV RUNPOD_INIT_TIMEOUT=600
 
 # Start handler

@@ -26,8 +26,8 @@ from qwen_vl_utils import process_vision_info
 print("[Qwen3-VL-8B] Loading model and processor...")
 start_load = time.time()
 
-# Model configuration
-MODEL_NAME = "Qwen/Qwen3-VL-8B-Instruct"
+# Model configuration - FP8 quantized for better memory efficiency
+MODEL_NAME = "Qwen/Qwen3-VL-8B-Instruct-FP8"
 
 # Load processor for chat template
 processor = AutoProcessor.from_pretrained(MODEL_NAME, trust_remote_code=True)
@@ -36,7 +36,7 @@ processor = AutoProcessor.from_pretrained(MODEL_NAME, trust_remote_code=True)
 llm = LLM(
     model=MODEL_NAME,
     trust_remote_code=True,
-    max_model_len=4096,
+    max_model_len=8192,
     gpu_memory_utilization=0.95,
     dtype="bfloat16",
     limit_mm_per_prompt={"image": 1},  # One image per prompt
@@ -92,7 +92,7 @@ Additional rules:
 # Sampling parameters for deterministic output
 sampling_params = SamplingParams(
     temperature=0.0,
-    max_tokens=4096,
+    max_tokens=8192,
 )
 
 
